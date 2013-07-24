@@ -22,7 +22,17 @@
     <script>
 
     var camera, scene, renderer, stats;
-    var geometry, material, mesh, spotLight;
+    var geometry, material, spotLight;
+    var extrudeMesh01, extrudeMesh02, extrudeMesh03;
+
+    var extrudeSettings = {
+        amount: 80,
+        bevelEnabled : true,
+        bevelSegments : 1,
+        steps: 1,
+        bevelSize: 20,
+        bevelThickness: 10
+    };
 
     init();
     animate();
@@ -31,18 +41,38 @@
 
         scene = new THREE.Scene();
 
-        camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
-        camera.position.set(0, 0, 500);
+        camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+        camera.position.set(0, 0, 800);
         camera.lookAt(scene.position);
 
 
-        geometry = new THREE.CubeGeometry( 100, 100, 100 );
-        //THREE.GeometryUtils.calculateVertexNormals(geometry, 10);
-        material = new THREE.MeshLambertMaterial( { color: 0xff0000 } );
 
+        material = new THREE.MeshLambertMaterial({color: 0xFF0000});
 
-        mesh = new THREE.Mesh( geometry, material );
-        scene.add( mesh );
+        var radius = 70; var sides = 16;
+        var shape = _circleShape(radius, sides);
+
+        //first of all, create a mesh without any smoothed vertex normals
+        var extrudeGeo01 = new THREE.ExtrudeGeometry(shape , extrudeSettings );
+        extrudeMesh01 = new THREE.Mesh(extrudeGeo01, material);
+        extrudeMesh01.position.x = -300;
+        scene.add(extrudeMesh01);
+
+        //now clone the geometry and smooth the vertex normals with a 25 degrees angle, meaning that all faces
+        //with an angle <= 25 degrees will be smoothed together
+        var extrudeGeo02 = extrudeGeo01.clone();
+        THREE.GeometryUtils.calculateVertexNormals(extrudeGeo02, 25);
+        extrudeMesh02 = new THREE.Mesh(extrudeGeo02, material);
+        extrudeMesh02.position.x = 0;
+        scene.add(extrudeMesh02);
+
+        //for good measure, display the catastrophic results from the ordinary "smooth everything" method
+        //even with using area weighted normals
+        var extrudeGeo03 = extrudeGeo01.clone();
+        extrudeGeo03.computeVertexNormals(true);
+        extrudeMesh03 = new THREE.Mesh(extrudeGeo03, material);
+        extrudeMesh03.position.x = 300;
+        scene.add(extrudeMesh03);
 
         spotLight = new THREE.SpotLight( 0xFFFFFF , 1.4, 100000, Math.PI, 1);
         spotLight.position.set( 500, 500, 500 );
@@ -66,8 +96,9 @@
         requestAnimationFrame( animate );
         stats.update();
 
-        mesh.rotation.x += 0.01;
-        mesh.rotation.y += 0.02;
+        extrudeMesh01.rotation.x += 0.01;
+        extrudeMesh02.rotation.x += 0.01;
+        extrudeMesh03.rotation.x += 0.01;
 
         renderer.render( scene, camera );
 
@@ -76,15 +107,15 @@
     function _circleShape(radius, sides){
         if (sides < 3) {
             console.log("Error: Cylindrical Shape cannot be generated with less than 3 sides!");
-            return;
+        }else{
+            var shape = new THREE.Shape();
+            shape.moveTo(0, radius);
+            for (var i = 1; i < sides; i++){
+                shape.lineTo(radius * Math.sin( (i/sides)* Math.PI *2 ), radius * Math.cos((i/sides)*Math.PI * 2) );
+            }
+            return shape;
         }
-        var shape = new THREE.Shape();
-        shape.moveTo(0, radius);
-        for (var i = 1; i < sides; i++){
-            shape.lineTo(radius * Math.sin( (i/sides)* Math.PI *2 ), radius * Math.cos((i/sides)*Math.PI * 2) );
-        }
-        return shape;
-
+        return undefined;
     }
 
 </script>
