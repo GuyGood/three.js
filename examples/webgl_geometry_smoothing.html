@@ -1,9 +1,93 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>three.js webgl - geometry - angle based smoothing</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <style>
+        body {
+            font-family: Monospace;
+            background-color: #f0f0f0;
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
 </head>
 <body>
+
+    <script src="../build/three.js"></script>
+    <script src="js/libs/stats.min.js"></script>
+    <script src="../src/extras/GeometryUtils.js"></script>
+    <script>
+
+    var camera, scene, renderer, stats;
+    var geometry, material, mesh, spotLight;
+
+    init();
+    animate();
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
+        camera.position.set(0, 0, 500);
+        camera.lookAt(scene.position);
+
+
+        geometry = new THREE.CubeGeometry( 100, 100, 100 );
+        //THREE.GeometryUtils.calculateVertexNormals(geometry, 10);
+        material = new THREE.MeshLambertMaterial( { color: 0xff0000 } );
+
+
+        mesh = new THREE.Mesh( geometry, material );
+        scene.add( mesh );
+
+        spotLight = new THREE.SpotLight( 0xFFFFFF , 1.4, 100000, Math.PI, 1);
+        spotLight.position.set( 500, 500, 500 );
+        scene.add(spotLight);
+
+        renderer = new THREE.WebGLRenderer( {antialias: true} );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        stats = new Stats();
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.top = '0px';
+        document.body.appendChild( stats.domElement );
+
+        document.body.appendChild( renderer.domElement );
+
+    }
+
+    function animate() {
+
+        // note: three.js includes requestAnimationFrame shim
+        requestAnimationFrame( animate );
+        stats.update();
+
+        mesh.rotation.x += 0.01;
+        mesh.rotation.y += 0.02;
+
+        renderer.render( scene, camera );
+
+    }
+
+    function _circleShape(radius, sides){
+        if (sides < 3) {
+            console.log("Error: Cylindrical Shape cannot be generated with less than 3 sides!");
+            return;
+        }
+        var shape = new THREE.Shape();
+        shape.moveTo(0, radius);
+        for (var i = 1; i < sides; i++){
+            shape.lineTo(radius * Math.sin( (i/sides)* Math.PI *2 ), radius * Math.cos((i/sides)*Math.PI * 2) );
+        }
+        return shape;
+
+    }
+
+</script>
 
 </body>
 </html>
