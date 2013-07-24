@@ -2,3 +2,11 @@
 *.swp
 .project
 utils/npm/node_modules/*
+/.idea/.name
+/.idea/encodings.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/scopes/scope_settings.xml
+/.idea/three.js.iml
+/.idea/vcs.xml
+/.idea/workspace.xml
