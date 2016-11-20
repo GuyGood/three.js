@@ -17,7 +17,7 @@ function _sortAdjacentFaces(adjacentFacesArray){
 function _sort(facesPerVertex, vertexIndex){
     startIndex = vertexIndex;
     var edges = [];
-
+    if(facesPerVertex!=undefined)
     for (var  i = 0; i < facesPerVertex.length; i++){
 
         facesPerVertex[edges.length].face instanceof THREE.Face4 ? count = 4 : count = 3;
@@ -759,6 +759,7 @@ THREE.GeometryUtils = {
 
         for (v = 0; v < geometry.vertices.length; v++){
             //for all faces the vertex is connected to
+	    if(adjacentNormals[v]!=undefined)
             for (i = 0; i < adjacentNormals[v].length; i++){
                 //compare two adjacent faces (i) and (i+19 that are connected by the specified vertex v
                 adjacentFaceNormal01.copy(adjacentNormals[v][i].face.normal);
